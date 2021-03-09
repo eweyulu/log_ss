@@ -2,24 +2,19 @@
 # -*- coding: utf-8 -*-
 
 """
-
+Run ss command and append log to file.
 """
 
 import os, sys
 import threading
 import time
-import socket
+import argparse
 
 import shell
 
 
 def __launch_ss(dur, ss_interval_second, log_path, sender_ip, sender_port):
 
-    """Run ss command and append log to file.
-    Args:
-        dur: The duration of the experiment.
-        log_path: The path of log file.
-    """
     t0 = time.time()
     t = t0
 
@@ -28,7 +23,7 @@ def __launch_ss(dur, ss_interval_second, log_path, sender_ip, sender_port):
         f.truncate()
     ss_ip =  sender_ip
     # ss_ip = 'localhost'
-    port = int(sender_port)
+    port = sender_port
     ss_cmd = 'ss -tin "dport = :%d and dst %s" >> %s' % (
         port, ss_ip,log_path,)
     while t < t0 + dur:
@@ -52,14 +47,30 @@ def launch_ss(dur, path, sender_ip, sender_port):
     t.start()
     return t, log_path
 
-
-if __name__ == '__main__':
+def main(args):
     
-    dur = float(sys.argv[1])
-    sender_ip = sys.argv[2]
-    sender_port = sys.argv[3]
+    dur = args.dur
+    sender_ip = args.ip
+    sender_port = args.port
     path = os.path.dirname(os.path.realpath('ss.py'))
     
     launch_ss(dur, path, sender_ip, sender_port)
+    
+    
+if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-dur', help='Duration of experiment', 
+                        type=float)
+    parser.add_argument('-ip', help='IP of sender (where to launch ss)', 
+                    type=str)
+    parser.add_argument('-port', help='Sender port', 
+                        type=int)
+    
+    if len(sys.argv)==1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    
+    main(parser.parse_args())     
     
     
