@@ -7,6 +7,7 @@ Parse ss logs
 
 import os
 import json
+import pandas as pd
 
 
 def __read_sslog(logfile):
@@ -18,6 +19,13 @@ def __read_sslog(logfile):
         The next entry in file f. None if there is no entry.
     """
     with open(logfile, 'r') as f:
+        
+        parameters = ['minrtt', 'retrans', 'rtt', 'rto', 'data_segs_out', 
+                  'cwnd', 'unacked', 'bbr_pacing_gain', 'bbr_minrtt', 
+                  'bbr_bw', 'bbr_cwnd_gain', 'bytes_acked', 'pacing_rate']
+        
+        results = pd.DataFrame(columns=parameters)
+    
         data = {}
         for line in f:
             
@@ -43,6 +51,7 @@ def __read_sslog(logfile):
             data[time] = {}
             stat = line.strip().split()
             cc = stat[0]
+            
             data[time][cc] = {}
             for item in stat:
                 if item.startswith('bytes_acked:'):
@@ -67,14 +76,26 @@ def __read_sslog(logfile):
                 elif item.startswith('unacked:'):
                     data[time][cc]['unacked'] = int(item[item.find(':') + 1:])
                 elif item.startswith('pacing_rate'):
-                    data[time][cc]['pacing_rate'] = int(item[item.find(' ') + 1:].split('M')[0])
+                    idx = stat.index('pacing_rate') + 1
+                    data[time][cc]['pacing_rate'] = float(stat[idx].split('M')[0])
                 elif item.startswith('bbr:'):
                     # bbr_item = item.strip().split()
-                    data[time][cc]['bbr_bw:'] = float(item.strip().split(',')[0].split(':')[2].split('M')[0])
-                    data[time][cc]['bbr_minrtt:'] = float(item.strip().split(',')[1].split(':')[1])
-                    data[time][cc]['bbr_pacing_gain:'] = float(item.strip().split(',')[2].split(':')[1])
-                    data[time][cc]['bbr_cwnd_gain:'] = float(item.strip().split(',')[3].split(':')[1].split(')')[0])
-        return data
+                    data[time][cc]['bbr_bw'] = float(item.strip().split(',')[0].split(':')[2].split('M')[0])
+                    data[time][cc]['bbr_minrtt'] = (float(item.strip().split(',')[1].split(':')[1])/1000)
+                    data[time][cc]['bbr_pacing_gain'] = float(item.strip().split(',')[2].split(':')[1])
+                    data[time][cc]['bbr_cwnd_gain'] = float(item.strip().split(',')[3].split(':')[1].split(')')[0])
+                
+                res = results.append(data[time][cc], ignore_index=True)
+                res[['port', 'time', 'cc_name']] = pd.DataFrame([[port,
+                                                        time, cc]], 
+                                                        index=res.index)
+                res = res[['port', 'time', 'cc_name', 'minrtt', 'retrans', 
+                           'rtt', 'rto', 'data_segs_out', 'cwnd', 'unacked', 
+                           'bbr_pacing_gain', 'bbr_minrtt', 'bbr_bw', 
+                           'bbr_cwnd_gain', 'bytes_acked', 'pacing_rate']]
+                
+        return data, res
+    
 
 
 if __name__ == '__main__':
@@ -83,7 +104,10 @@ if __name__ == '__main__':
     rel_path = 'ss.log'
     log_file = os.path.join(script_dir, rel_path)
     
-    data = __read_sslog(log_file)
+    data, res = __read_sslog(log_file)
+    
+    res.to_csv(path_or_buf=os.path.join(script_dir, 'results.csv'), 
+                   index=False) 
     
     with open('data.txt', 'w') as outfile:
         json.dump(data, outfile)
