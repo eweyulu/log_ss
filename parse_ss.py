@@ -8,6 +8,7 @@ Parse ss logs
 import os
 import json
 import pandas as pd
+import re
 
 
 def __read_sslog(logfile):
@@ -77,10 +78,10 @@ def __read_sslog(logfile):
                     data[time][cc]['unacked'] = int(item[item.find(':') + 1:])
                 elif item.startswith('pacing_rate'):
                     idx = stat.index('pacing_rate') + 1
-                    data[time][cc]['pacing_rate'] = float(stat[idx].split('M')[0])
+                    data[time][cc]['pacing_rate'] = float(re.split(r'M|K', stat[idx])[0])
                 elif item.startswith('bbr:'):
-                    # bbr_item = item.strip().split()
                     data[time][cc]['bbr_bw'] = float(item.strip().split(',')[0].split(':')[2].split('M')[0])
+                    data[time][cc]['bbr_bw'] = float(re.split(r'M|K', item.strip().split(',')[0].split(':')[2])[0])
                     data[time][cc]['bbr_minrtt'] = (float(item.strip().split(',')[1].split(':')[1])/1000)
                     data[time][cc]['bbr_pacing_gain'] = float(item.strip().split(',')[2].split(':')[1])
                     data[time][cc]['bbr_cwnd_gain'] = float(item.strip().split(',')[3].split(':')[1].split(')')[0])

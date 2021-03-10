@@ -37,7 +37,7 @@ def __launch_ss(dur, ss_interval_second, log_path, sender_ip, sender_port):
 
 def launch_ss(dur, path, sender_ip, sender_port):
     
-    ss_interval_second = 0.1
+    ss_interval_second = 0.01
     if ss_interval_second == 0:
         return None, None
     log_path = os.path.join(path, 'ss.log')
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-dur', help='Duration of experiment', 
                         type=float)
-    parser.add_argument('-ip', help='IP of sender (where to launch ss)', 
+    parser.add_argument('-ip', help='IP of receiver', 
                     type=str)
     parser.add_argument('-port', help='Sender port', 
                         type=int)
