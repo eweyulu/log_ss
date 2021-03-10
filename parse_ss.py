@@ -94,8 +94,7 @@ def __read_sslog(logfile):
                            'bbr_pacing_gain', 'bbr_minrtt', 'bbr_bw', 
                            'bbr_cwnd_gain', 'bytes_acked', 'pacing_rate']]
                 
-        return data, res
-    
+            return data, res
 
 
 if __name__ == '__main__':
@@ -106,11 +105,14 @@ if __name__ == '__main__':
     
     data, res = __read_sslog(log_file)
     
+    
+    # Save output data to files
     res.to_csv(path_or_buf=os.path.join(script_dir, 'results.csv'), 
                    index=False) 
-    
     with open('data.txt', 'w') as outfile:
         json.dump(data, outfile)
+    
+    
     
     
     
