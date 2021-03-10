@@ -80,7 +80,6 @@ def __read_sslog(logfile):
                     idx = stat.index('pacing_rate') + 1
                     data[time][cc]['pacing_rate'] = float(re.split(r'M|K', stat[idx])[0])
                 elif item.startswith('bbr:'):
-                    data[time][cc]['bbr_bw'] = float(item.strip().split(',')[0].split(':')[2].split('M')[0])
                     data[time][cc]['bbr_bw'] = float(re.split(r'M|K', item.strip().split(',')[0].split(':')[2])[0])
                     data[time][cc]['bbr_minrtt'] = (float(item.strip().split(',')[1].split(':')[1])/1000)
                     data[time][cc]['bbr_pacing_gain'] = float(item.strip().split(',')[2].split(':')[1])
