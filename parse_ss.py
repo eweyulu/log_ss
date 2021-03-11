@@ -23,11 +23,7 @@ def __read_sslog(logfile):
         lst = []
         for line in f:
             data = {}
-            # data = {}
-            
-            # line = f.readline()
-            # if not line:
-            #     return None
+
             if line.startswith('# '):
                 time = float(line[2:])
                 continue
@@ -39,7 +35,6 @@ def __read_sslog(logfile):
                 
                 port = line.strip()
                 port = int(port[port.rfind(':') + 1:])
-                # data['port'] = port
                 continue
            
             if not line:
@@ -48,8 +43,6 @@ def __read_sslog(logfile):
             data['port'] = port
             stat = line.strip().split()
             cc = stat[0]
-            
-            # filter_lst = ['wscale, mss, segs_out, segs_in, send, lastsnd, lastrcv, lastack, rcv_space, notsent']
             
             data['cc_name'] = cc
             for item in stat:
