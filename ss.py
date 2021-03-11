@@ -37,7 +37,7 @@ def __launch_ss(dur, ss_interval_second, log_path, sender_ip, sender_port):
 
 def launch_ss(dur, path, sender_ip, sender_port):
     
-    ss_interval_second = 0.01
+    ss_interval_second = 0.001
     if ss_interval_second == 0:
         return None, None
     log_path = os.path.join(path, 'ss.log')
