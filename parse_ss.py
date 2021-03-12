@@ -23,6 +23,9 @@ def __read_sslog(logfile):
         lst = []
         for line in f:
             data = {}
+            
+            if line.startswith('FIN-WAIT'):
+                break
 
             if line.startswith('# '):
                 time = float(line[2:])
@@ -91,11 +94,16 @@ def __read_sslog(logfile):
             
                 
         res = pd.DataFrame(lst)
-
-        res = res[['port', 'time', 'cc_name', 'minrtt',  
+        
+        if res['cc_name'][0] == 'bbr':
+            res = res[['port', 'time', 'cc_name', 'minrtt',  
                     'rtt', 'rto', 'data_segs_out', 'cwnd', 'unacked', 
                     'bbr_pacing_gain', 'bbr_minrtt', 'bbr_bw', 
                     'bbr_cwnd_gain', 'bytes_acked', 'pacing_rate']]
+        else:
+            res = res[['port', 'time', 'cc_name', 'minrtt',  
+                    'rtt', 'rto', 'data_segs_out', 'cwnd', 'unacked', 
+                    'bytes_acked', 'pacing_rate']]
                 
     return res
 
