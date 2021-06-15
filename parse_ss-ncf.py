@@ -20,10 +20,11 @@ def __read_sslog(logfile):
     """
 
     # logfile = 'test-log.log'
-
+    
     with open(logfile, 'r') as f:
     
         lst = []
+        time_tmp = 0
         for line in f:
             data = {}
             
@@ -31,7 +32,7 @@ def __read_sslog(logfile):
                 break
     
             if line.startswith('# '):
-                time = float(line[2:])
+                init_time = float(line[2:])
                 continue
     
             if line.startswith('State'):
@@ -45,7 +46,7 @@ def __read_sslog(logfile):
                 
                 sport = line.strip()
                 sport = int(sport[sport.rfind(':') + 1:])
-                dport = int(line.split(':')[4].strip('   ['))
+                dport = int(line.split(':')[1].split('192')[0].strip())
                 tmp_item = ''
                 continue
            
@@ -54,6 +55,13 @@ def __read_sslog(logfile):
                 continue
             if tmp_item == 'SYN-SENT':
                 continue
+            
+            if time_tmp == 0:
+                time_tmp = init_time
+                time = 0
+            else:
+                time = init_time - time_tmp
+            
             data['time'] = time
             data['sport'] = sport
             data['dport'] = dport
@@ -89,13 +97,13 @@ def __read_sslog(logfile):
                     data['data_segs_out'] = int(item[item.rfind(':') + 1:])
                 elif item.startswith('rto:'):
                     data['rto'] = (
-                        float(item[item.find(':') + 1:item.rfind('/')]) / 1000)
+                        float(item[item.find(':') + 1:item.rfind('/')]))
                 elif item.startswith('rtt:'):
                     data['rtt'] = (
-                        float(item[item.find(':') + 1:item.rfind('/')]) / 1000)
+                        float(item[item.find(':') + 1:item.rfind('/')]))
                 elif item.startswith('minrtt:'):
                     data['minrtt'] = (
-                        float(item[item.find(':') + 1:item.rfind('/')]) / 1000)
+                        float(item[item.find(':') + 1:item.rfind('/')]))
                 elif item.startswith('unacked:'):
                     data['unacked'] = int(item[item.find(':') + 1:])
                 elif item.startswith('pacing_rate'):
@@ -130,7 +138,7 @@ def __read_sslog(logfile):
                     'back_log', 'cwnd', 'pacing_rate']]
         else:
             pass
-                
+            
     return res
 
 

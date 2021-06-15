@@ -32,8 +32,10 @@ def __launch_ss(dur, ss_interval_second, log_path, sender_ip, sender_port):
         shell.run(ss_cmd)
         t += ss_interval_second
         to_sleep = t - time.time()
+        print('to_sleep:', to_sleep)
         if to_sleep > 0:
             time.sleep(to_sleep)
+    # sys.exit(0)
 
 def launch_ss(dur, path, sender_ip, sender_port):
     
